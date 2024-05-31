@@ -12,7 +12,20 @@ class ValueexpItem(Item):
     city = Field()
     scraped_at = Field()
     list_time = Field()
-    primary = Field()
+    link = Field()
+
+    title = Field()
+
+    description = Field()
+
+    area = Field()
+
+    price = Field()
+
+    typee = Field()
+
+    category = Field()
+
     secondary = Field()
 
 

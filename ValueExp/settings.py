@@ -14,6 +14,16 @@ BOT_NAME = "ValueExp"
 SPIDER_MODULES = ["ValueExp.spiders"]
 NEWSPIDER_MODULE = "ValueExp.spiders"
 
+# Add MongoDB connection settings
+MONGO_URI = 'mongodb+srv://ouzamapro:ouzamapro@valuexpert.j6zwfb1.mongodb.net/'
+MONGO_DB_RENT = 'rent_db'
+MONGO_DB_SELL = 'sell_db'
+
+# Enable MongoDB pipeline
+ITEM_PIPELINES = {
+    'ValueExp.pipelines.ValueexpPipeline': 300,
+}
+
 
 SCRAPEOPS_API_KEY = 'f81d2bb0-e6b2-4757-ab69-b2fed05dab00'
 SCRAPEOPS_FAKE_USER_AGENT_ENDPOINT = 'https://headers.scrapeops.io/v1/user-agents'

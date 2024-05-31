@@ -17,12 +17,12 @@ class avito_vf(scrapy.Spider):
 
     def start_requests(self):
         base_url = 'https://www.avito.ma/fr'
-        # categories = ['vendre', 'louer']
-        categories = ['vendre']
-        # property_types = ['appartements', 'maisons', 'villas_riad', 'bureaux_et_plateaux', 'magasins_et_commerces']
-        property_types = ['maisons']
-        # cities = ['casablanca', 'tanger', 'marrakech', 'fes', 'agadir', 'temara', 'mohammedia', 'sale', 'kenitra', 'rabat', 'oujda', 'el_jadida']  
-        cities = ['tanger']  
+        categories = ['vendre', 'louer']
+        # categories = ['vendre']
+        property_types = ['appartements', 'maisons', 'villas_riad', 'bureaux_et_plateaux', 'magasins_et_commerces']
+        # property_types = ['appartements']
+        cities = ['casablanca', 'tanger', 'marrakech', 'fes', 'agadir', 'temara', 'mohammedia', 'sale', 'kenitra', 'rabat', 'oujda', 'el_jadida']  
+        # cities = ['rabat']  
 
 
         for category in categories:
@@ -41,10 +41,10 @@ class avito_vf(scrapy.Spider):
                 else :
                     continue
             
-            # # Handle pagination
-            # next_page = response.xpath("//a[contains(@class, 'sc-1cf7u6r-0') and contains(@class, 'gRyZxr') and contains(@class, 'sc-2y0ggl-1') and contains(@class, 'yRCEb') and ./div[@style='width:24px;height:24px;background-color:rgba(242, 242, 242,0.2);border-radius:50px']]/@href").get()
-            # if next_page:
-            #     yield response.follow(next_page, callback=self.parse_listings, meta=response.meta)
+            # Handle pagination
+            next_page = response.xpath("//a[contains(@class, 'sc-1cf7u6r-0') and contains(@class, 'gRyZxr') and contains(@class, 'sc-2y0ggl-1') and contains(@class, 'yRCEb') and ./div[@style='width:24px;height:24px;background-color:rgba(242, 242, 242,0.2);border-radius:50px']]/@href").get()
+            if next_page:
+                yield response.follow(next_page, callback=self.parse_listings, meta=response.meta)
 
     def parse_item(self, response):
         
@@ -55,19 +55,23 @@ class avito_vf(scrapy.Spider):
         item = ValueexpItem()
         
         item['city'] = dataInfo.get('location',{}).get('city',{}).get('name') 
-        item['scraped_at'] = datetime.now(timezone.utc).isoformat(),
-        item['list_time'] = dataInfo.get('listTime'),
-        item['primary'] =  {
-                'link' :dataInfo.get('friendlyUrl',{}).get('url',{}),
-                'title' : dataInfo.get('subject'),
-                'description' : dataInfo.get('description'),
-                'area' : dataInfo.get('location',{}).get('area',{}).get('name'),
-                'price' : dataInfo.get('price',{}).get('value'),
-                'address' : dataInfo.get('location',{}).get('address'),
-                'typee' : dataInfo.get('type',{}).get('label'),
-                'category' : dataInfo.get('category',{}).get('name'),
-                'images' : dataInfo.get('images',{}) ,
-            },
+        item['list_time'] = dataInfo.get('listTime')
+        item['scraped_at'] = datetime.now(timezone.utc).isoformat()
+        
+        
+        item['link'] = dataInfo.get('friendlyUrl',{}).get('url')
+        item['title'] = dataInfo.get('subject')
+        item['description'] = dataInfo.get('description')
+        item['area'] = dataInfo.get('location',{}).get('area',{}).get('name')
+        item['price'] = dataInfo.get('price',{}).get('value')
+        item['typee'] = response.meta['property_type']  
+        item['category'] = response.meta['category']  
+        
+        # item['typee'] = dataInfo.get('type',{}).get('label')
+        # item['category'] = dataInfo.get('category',{}).get('name')
+        # item['images'] = dataInfo.get('images',{}) ,
+
+            
         item['secondary'] = self.parse_sec(response,dataInfo)
 
             
@@ -76,7 +80,9 @@ class avito_vf(scrapy.Spider):
     
 
     def parse_sec(self,response, dataInfo):
-        sec={}
+        sec={
+            'extra':[]
+        }
         if(response.meta['property_type']=='appartements'):
             label_to_key = {
                 'Âge du bien': 'property_age',
