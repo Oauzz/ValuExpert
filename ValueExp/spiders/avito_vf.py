@@ -15,27 +15,32 @@ class avito_vf(scrapy.Spider):
 
     def __init__(self, *args, **kwargs):
         super(avito_vf, self).__init__(*args, **kwargs)
-        self.page_count = 0  # Initialize the page counter
+         # Initialize the page counter
+
 
 
 
     def start_requests(self):
         base_url = 'https://www.avito.ma/fr'
         # categories = ['vendre', 'louer']
-        categories = ['vendre']
+        categories = [self.category]
         # property_types = ['appartements', 'maisons', 'villas_riad', 'bureaux_et_plateaux', 'magasins_et_commerces']
-        property_types = ['appartements']
+        property_types = [self.property]
         # cities = ['casablanca', 'tanger', 'marrakech', 'fes', 'agadir', 'temara', 'mohammedia', 'sale', 'kenitra', 'rabat', 'oujda', 'el_jadida']  
-        cities = ['rabat']  
+        cities = [self.city]  
+        page = self.page
 
 
         for category in categories:
             for property_type in property_types:
                 for city in cities:
-                    url = f"{base_url}/{city}/{property_type}-%C3%A0_{category}?{20}"
+                    url = f"{base_url}/{city}/{property_type}-%C3%A0_{category}?{page}"
                     yield scrapy.Request(url=url, callback=self.parse_listings, meta={'category': category, 'property_type': property_type, 'city': city})
 
     def parse_listings(self, response):
+            
+            if response.status == 404:
+                return
             # Extract links to individual item pages
             item_links = response.xpath("//a[contains(@class, 'sc-1jge648-0') and (contains(@class, 'eTbzNs') or contains(@class, 'cEosSi'))]/@href").extract()
             
