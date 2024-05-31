@@ -214,3 +214,29 @@ class MyProxyMiddleware(object):
         host = 'http://{endpoint}:{port}'.format(endpoint=self.endpoint, port=self.port)
         request.meta['proxy'] = host
         request.headers['Proxy-Authorization'] = basic_authentication
+
+
+# middlewares.py
+
+from urllib.parse import urlencode
+
+class ScrapeOpsProxyMiddleware:
+    def __init__(self, api_key, residential):
+        self.api_key = api_key
+        self.residential = residential
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        return cls(
+            api_key=crawler.settings.get('SCRAPEOPS_API_KEY'),
+            residential=crawler.settings.get('SCRAPEOPS_RESIDENTIAL')
+        )
+
+    def process_request(self, request, spider):
+        params = {
+            'api_key': self.api_key,
+            'url': request.url,
+            'residential': self.residential
+        }
+        proxy_url = f"https://proxy.scrapeops.io/v1/?{urlencode(params)}"
+        request.meta['proxy'] = proxy_url

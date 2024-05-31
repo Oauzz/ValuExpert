@@ -14,6 +14,20 @@ BOT_NAME = "ValueExp"
 SPIDER_MODULES = ["ValueExp.spiders"]
 NEWSPIDER_MODULE = "ValueExp.spiders"
 
+
+# RETRY_ENABLED = True
+# RETRY_TIMES = 2  # Number of retries
+RETRY_HTTP_CODES = [500, 502, 503, 504, 408]  # Retry on these HTTP codes
+HTTPERROR_ALLOWED_CODES = [512,511,429]
+# DOWNLOAD_DELAY = 2
+
+# AUTOTHROTTLE_ENABLED = True
+# AUTOTHROTTLE_START_DELAY = 5
+# AUTOTHROTTLE_MAX_DELAY = 60
+# AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0
+# AUTOTHROTTLE_DEBUG = False
+
+
 # Add MongoDB connection settings
 MONGO_URI = 'mongodb+srv://ouzamapro:ouzamapro@valuexpert.j6zwfb1.mongodb.net/'
 MONGO_DB_RENT = 'rent_db'
@@ -31,6 +45,7 @@ SCRAPEOPS_FAKE_BROWSER_HEADER_ENDPOINT = 'https://headers.scrapeops.io/v1/browse
 SCRAPEOPS_FAKE_USER_AGENT_ENABLED = True 
 SCRAPEOPS_FAKE_BROWSER_HEADER_ENABLED = True
 SCRAPEOPS_NUM_RESULTS = 5
+SCRAPEOPS_RESIDENTIAL = 'true'
 
 
 PROXY_USER = 'spckd6fg5g'
@@ -76,6 +91,7 @@ ROBOTSTXT_OBEY = True
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
+   #  'ValueExp.middlewares.ScrapeOpsProxyMiddleware': 543,
    # "ValueExp.middlewares.ValueexpDownloaderMiddleware": 543,
    # 'ValueExp.middlewares.ScrapeOpsFakeUserAgentMiddleware': 400,
    'ValueExp.middlewares.ScrapeOpsFakeBrowserHeaderAgentMiddleware': 400,

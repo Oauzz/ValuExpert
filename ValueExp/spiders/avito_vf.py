@@ -13,22 +13,26 @@ class avito_vf(scrapy.Spider):
     allowed_domains = ["avito.ma"]
     start_urls = ["https://www.avito.ma/fr"]
 
+    def __init__(self, *args, **kwargs):
+        super(avito_vf, self).__init__(*args, **kwargs)
+        self.page_count = 0  # Initialize the page counter
+
 
 
     def start_requests(self):
         base_url = 'https://www.avito.ma/fr'
-        categories = ['vendre', 'louer']
-        # categories = ['vendre']
-        property_types = ['appartements', 'maisons', 'villas_riad', 'bureaux_et_plateaux', 'magasins_et_commerces']
-        # property_types = ['appartements']
-        cities = ['casablanca', 'tanger', 'marrakech', 'fes', 'agadir', 'temara', 'mohammedia', 'sale', 'kenitra', 'rabat', 'oujda', 'el_jadida']  
-        # cities = ['rabat']  
+        # categories = ['vendre', 'louer']
+        categories = ['vendre']
+        # property_types = ['appartements', 'maisons', 'villas_riad', 'bureaux_et_plateaux', 'magasins_et_commerces']
+        property_types = ['appartements']
+        # cities = ['casablanca', 'tanger', 'marrakech', 'fes', 'agadir', 'temara', 'mohammedia', 'sale', 'kenitra', 'rabat', 'oujda', 'el_jadida']  
+        cities = ['rabat']  
 
 
         for category in categories:
             for property_type in property_types:
                 for city in cities:
-                    url = f"{base_url}/{city}/{property_type}-%C3%A0_{category}"
+                    url = f"{base_url}/{city}/{property_type}-%C3%A0_{category}?{20}"
                     yield scrapy.Request(url=url, callback=self.parse_listings, meta={'category': category, 'property_type': property_type, 'city': city})
 
     def parse_listings(self, response):
@@ -42,14 +46,25 @@ class avito_vf(scrapy.Spider):
                     continue
             
             # Handle pagination
-            next_page = response.xpath("//a[contains(@class, 'sc-1cf7u6r-0') and contains(@class, 'gRyZxr') and contains(@class, 'sc-2y0ggl-1') and contains(@class, 'yRCEb') and ./div[@style='width:24px;height:24px;background-color:rgba(242, 242, 242,0.2);border-radius:50px']]/@href").get()
-            if next_page:
-                yield response.follow(next_page, callback=self.parse_listings, meta=response.meta)
+            # self.page_count += 1  # Increment the page counter
+            # if self.page_count < 54:
+                # next_page = response.xpath("//a[contains(@class, 'sc-1cf7u6r-0') and contains(@class, 'gRyZxr') and contains(@class, 'sc-2y0ggl-1') and contains(@class, 'yRCEb') and ./div[@style='width:24px;height:24px;background-color:rgba(242, 242, 242,0.2);border-radius:50px']]/@href").get()
+                # if next_page:
+                #     yield response.follow(next_page, callback=self.parse_listings, meta=response.meta)
 
     def parse_item(self, response):
         
         script = response.xpath('normalize-space(//script[@id="__NEXT_DATA__"]/text())').get()
-        data = json.loads(script)
+
+        if not script:
+            self.logger.warning(f"No script found in response: {response.url}")
+            return
+        
+        try:
+            data = json.loads(script)
+        except json.JSONDecodeError as e:
+            self.logger.error(f"Error decoding JSON from script in response: {response.url}, error: {e}")
+            return
         dataInfo= data.get('props',{}).get('pageProps',{}).get('componentProps',{}).get('adInfo',{}).get('ad',{})
         
         item = ValueexpItem()
@@ -100,11 +115,11 @@ class avito_vf(scrapy.Spider):
 
             for category in ['primary', 'secondary']:
                 for item in dataInfo['params'][category]:
-                    if item['label'] in label_to_key:
+                    if (item['label'] in label_to_key) and ('value' in item):
                         sec[label_to_key[item['label']]] = item['value']
     
             for item in dataInfo['params']['extra']:
-                if item['label'] in boolean_features:
+                if (item['label'] in boolean_features) and  ('value' in item):
                     sec['extra'].append({item['label']: item['value']})
 
             # sec={
@@ -136,11 +151,11 @@ class avito_vf(scrapy.Spider):
 
             for category in ['primary', 'secondary']:
                 for item in dataInfo['params'][category]:
-                    if item['label'] in label_to_key:
+                    if (item['label'] in label_to_key) and ('value' in item):
                         sec[label_to_key[item['label']]] = item['value']
     
             for item in dataInfo['params']['extra']:
-                if item['label'] in boolean_features:
+                if (item['label'] in boolean_features) and  ('value' in item):
                     sec['extra'].append({item['label']: item['value']})
             # sec={
             #     'property_age' :,
@@ -170,11 +185,11 @@ class avito_vf(scrapy.Spider):
 
             for category in ['primary', 'secondary']:
                 for item in dataInfo['params'][category]:
-                    if item['label'] in label_to_key:
+                    if (item['label'] in label_to_key) and ('value' in item):
                         sec[label_to_key[item['label']]] = item['value']
     
             for item in dataInfo['params']['extra']:
-                if item['label'] in boolean_features:
+                if (item['label'] in boolean_features) and  ('value' in item):
                     sec['extra'].append({item['label']: item['value']})
 
 
@@ -204,11 +219,11 @@ class avito_vf(scrapy.Spider):
 
             for category in ['primary', 'secondary']:
                 for item in dataInfo['params'][category]:
-                    if item['label'] in label_to_key:
+                    if (item['label'] in label_to_key) and ('value' in item):
                         sec[label_to_key[item['label']]] = item['value']
     
             for item in dataInfo['params']['extra']:
-                if item['label'] in boolean_features:
+                if (item['label'] in boolean_features) and  ('value' in item):
                     sec['extra'].append({item['label']: item['value']})
 
 
@@ -234,11 +249,11 @@ class avito_vf(scrapy.Spider):
 
             for category in ['primary', 'secondary']:
                 for item in dataInfo['params'][category]:
-                    if item['label'] in label_to_key:
+                    if (item['label'] in label_to_key) and ('value' in item):
                         sec[label_to_key[item['label']]] = item['value']
     
             for item in dataInfo['params']['extra']:
-                if item['label'] in boolean_features:
+                if (item['label'] in boolean_features) and  ('value' in item):
                     sec['extra'].append({item['label']: item['value']})
 
 
