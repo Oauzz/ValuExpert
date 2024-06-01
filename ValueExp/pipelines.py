@@ -34,6 +34,7 @@ class ValueexpPipeline:
     def process_item(self, item, spider):
         category = item.get('category')
         property_type = item.get('typee')
+        link = item.get('link')
         
         collection_name_map = {
             'appartements': 'appartements',
@@ -47,8 +48,16 @@ class ValueexpPipeline:
         
         if collection_name:
             if category == 'louer':
-                self.db_rent[collection_name].insert_one(dict(item))
+                collection = self.db_rent[collection_name]
             elif category == 'vendre':
-                self.db_sell[collection_name].insert_one(dict(item))
+                collection = self.db_sell[collection_name]
+            else : 
+                return item
+
+            # Check if item with the same link already exists
+            if collection.find_one({'link': link}):
+                spider.logger.info(f"Duplicate item found: {link}")
+            else:
+                collection.insert_one(dict(item))
         
         return item
