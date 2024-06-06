@@ -24,9 +24,12 @@ class avito_vf(scrapy.Spider):
         base_url = 'https://www.avito.ma/fr'
         # categories = ['vendre', 'louer']
         categories = [self.category]
-        # property_types = ['appartements', 'maisons', 'villas_riad', 'bureaux_et_plateaux', 'magasins_et_commerces']
+
+    # property_types = ['appartements', 'maisons', 'villas_riad', 
+    # 'bureaux_et_plateaux', 'magasins_et_commerces']
         property_types = [self.property]
-        # cities = ['casablanca', 'tanger', 'marrakech', 'fes', 'agadir', 'temara', 'mohammedia', 'sale', 'kenitra', 'rabat', 'oujda', 'el_jadida']  
+        # cities = ['casablanca', 'tanger', 'marrakech', 'fes', 
+        # 'agadir', 'temara', 'mohammedia', 'sale', 'kenitra', 'rabat', 'oujda', 'el_jadida']  
         cities = [self.city]  
         page = self.page
 

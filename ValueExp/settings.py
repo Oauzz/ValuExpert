@@ -14,6 +14,16 @@ BOT_NAME = "ValueExp"
 SPIDER_MODULES = ["ValueExp.spiders"]
 NEWSPIDER_MODULE = "ValueExp.spiders"
 
+DOWNLOAD_DELAY = 2  # 3 seconds delay
+
+# Randomize download delay to avoid detection
+RANDOMIZE_DOWNLOAD_DELAY = True
+
+# Enable and configure the AutoThrottle extension
+AUTOTHROTTLE_ENABLED = True
+AUTOTHROTTLE_START_DELAY = 2  # initial download delay
+AUTOTHROTTLE_MAX_DELAY = 60  # maximum download delay to be set in case of high latencies
+AUTOTHROTTLE_TARGET_CONCURRENCY = 1.0  # average number of requests Scrapy should be sending in parallel to each remote server
 
 # RETRY_ENABLED = True
 # RETRY_TIMES = 2  # Number of retries

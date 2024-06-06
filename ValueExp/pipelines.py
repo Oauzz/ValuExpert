@@ -51,11 +51,12 @@ class ValueexpPipeline:
                 collection = self.db_rent[collection_name]
             elif category == 'vendre':
                 collection = self.db_sell[collection_name]
-            else : 
+            else:
                 return item
-
-            # Check if item with the same link already exists
-            if collection.find_one({'link': link}):
+            
+            # Check for duplicates
+            existing_item = collection.find_one({'link': link})
+            if existing_item:
                 spider.logger.info(f"Duplicate item found: {link}")
             else:
                 collection.insert_one(dict(item))
